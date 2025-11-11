@@ -1,0 +1,129 @@
+body {
+    margin: 0;
+}
+
+.home {
+  background-image: url("/chess-background.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100%;
+}
+
+.navbar {
+  display: flex;
+  height: 80px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2c2b2b;
+}
+
+.navbar > img {
+  height: 80px;
+}
+.menu {
+  display: flex;
+  width: 25%;
+  justify-content: space-around;
+  align-items: center;
+  margin-right: 40%;
+}
+
+.menu > p {
+  position: relative;
+  font-family: Helvetica, sans-serif;
+  cursor: pointer;
+  color: #fff;
+  padding: 12px;
+}
+
+.menu > p::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: #e8b63c;
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+
+.menu > p:hover::after {
+  width: 100%;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 160px);
+  padding: 40px 20px;
+  background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45));
+  text-align: center;
+  color: #fff;
+  font-family: Helvetica, sans-serif;
+}
+
+.hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(2.2rem, 6.6vw, 4.2rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  color: #ffffff;
+  text-shadow: 0 8px 22px rgba(0,0,0,0.65);
+}
+
+.hero h4 {
+  margin: 0 0 22px;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  color: rgba(255,255,255,0.92);
+  font-weight: 400;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.45);
+}
+
+.login-btn {
+  height: 40px;
+  width: 100px;
+  border: none;
+  background-color: #e8b63c;
+  color: #2c2b2b;
+  font-weight: 600;
+  margin: 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.login-btn:hover {
+  background-color: #f5ca52;
+  color: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+.cta {
+  height: 50px;
+  width: 150px;
+  border: none;
+  background-color: #e8b63c;
+  color: #2c2b2b;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
+}
+
+.cta:hover {
+  background-color: #f5ca52;
+  color: #1a1a1a;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+
+
