@@ -11,11 +11,11 @@ export const Home = () => {
 
   return (
     <div className="home">
-      <Navbar handlePlay={handlePlay}/>
+      <Navbar />
       <div className="hero">
         <div className="hero-inner">
           <h1>MASTER YOUR MOVES</h1>
-          <h4>Play, learn and connect with others</h4>
+          <h2>Play, learn and connect with others</h2>
           <button className="cta" onClick={handlePlay}>PLAY NOW</button>
         </div>
       </div>

@@ -10,29 +10,26 @@ class Game {
         this.board = new chess_js_1.Chess();
         this.moves = [];
         this.startTime = new Date();
-        this.player1.send(JSON.stringify({
-            type: messages_1.INIT_GAME,
-            payload: {
-                color: "white"
-            }
-        }));
-        this.player2.send(JSON.stringify({
-            type: messages_1.INIT_GAME,
-            payload: {
-                color: "black"
-            }
-        }));
+        this.initialise_player(player1, "white");
+        this.initialise_player(player2, "black");
     }
-    makeMove(ws, move) {
-        if (this.board.turn() === "w" && this.player1 !== ws) {
+    initialise_player(player, color) {
+        player.send({
+            type: messages_1.INIT_GAME,
+            payload: {
+                color: color
+            }
+        });
+    }
+    makeMove(user, move) {
+        if (this.board.turn() === "w" && this.player1 !== user) {
             return;
         }
-        if (this.board.turn() === "b" && this.player2 !== ws) {
+        if (this.board.turn() === "b" && this.player2 !== user) {
             return;
         }
         try {
             this.board.move(move);
-            console.log(this.board.ascii());
         }
         catch (e) {
             console.log(e);
@@ -46,31 +43,33 @@ class Game {
             else {
                 result = this.board.turn() === "w" ? "black" : "white";
             }
-            this.player1.send(JSON.stringify({
+            this.player1.markPlaying(false);
+            this.player1.send({
                 type: messages_1.GAME_OVER,
                 payload: {
                     result: result
                 }
-            }));
-            this.player2.send(JSON.stringify({
+            });
+            this.player2.markPlaying(false);
+            this.player2.send({
                 type: messages_1.GAME_OVER,
                 payload: {
                     result: result
                 }
-            }));
+            });
             return;
         }
         if (this.board.turn() === "w") {
-            this.player1.send(JSON.stringify({
+            this.player1.send({
                 type: messages_1.MOVE,
                 payload: move
-            }));
+            });
         }
         else {
-            this.player2.send(JSON.stringify({
+            this.player2.send({
                 type: messages_1.MOVE,
                 payload: move
-            }));
+            });
         }
     }
 }
