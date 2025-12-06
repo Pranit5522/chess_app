@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChessSounds } from "../sounds/ChessSounds";
-import {Chess, type PieceSymbol, type Square, type Color } from "chess.js";
+import {Chess, type PieceSymbol, type Square, type Color, type Move } from "chess.js";
 
 export const Chessboard = ({
   board,
@@ -12,7 +12,8 @@ export const Chessboard = ({
   setBoard: React.Dispatch<React.SetStateAction<({ square: Square; type: PieceSymbol; color: Color; } | null)[][]>>,
 }) => {
     const [fromSquare, setFromSquare] = useState<Square | null>(null);
-    const [possibleMoves, setPossibleMoves] = useState<{ rowIndex: number; colIndex: number }[]>([]);
+    const [possibleMoves, setPossibleMoves] = useState<Move[]>([]);
+    const [lastMove, setLastMove] = useState<Move | null>(null);
 
     // Helpers to convert between board indices and chess squares
     const convertIndexToSquare = (rowIndex: number, colIndex: number): Square => {
@@ -31,6 +32,25 @@ export const Chessboard = ({
         return { rowIndex, colIndex };
     }
 
+    // useEffect to play sounds on lastMove change
+    useEffect(() => {
+        if (!lastMove) return;
+
+        if (chessRef.current.isGameOver()) {
+            ChessSounds.GAME_END.play();
+        }
+    
+        if (chessRef.current.inCheck()) {
+            ChessSounds.CHECK.play();
+        } else if (lastMove.isKingsideCastle() || lastMove.isQueensideCastle()) {
+            ChessSounds.CASTLE.play();
+        }  else if (lastMove.isCapture()) {
+            ChessSounds.CAPTURE.play();
+        } else {
+            ChessSounds.MOVE.play();
+        }
+    }, [lastMove]);
+
     // Handle piece selection and movement
     const handlePieceSelect = (rowIndex: number, colIndex: number) => {
         const square = convertIndexToSquare(rowIndex, colIndex);
@@ -43,28 +63,23 @@ export const Chessboard = ({
             
             // Highlight possible moves
             setFromSquare(square);
-            setPossibleMoves(
-                moves.map((move) => convertSquareToIndex(move.to))
-            );
+            setPossibleMoves(moves);
 
             // Return early to allow move selection
             return;
-        } else if (
-            fromSquare &&
-            possibleMoves.some(m => m.rowIndex === rowIndex && m.colIndex === colIndex)
-        ) {
-            const toSquare = convertIndexToSquare(rowIndex, colIndex);
 
-            // Play appropriate sound
-            if (board[rowIndex][colIndex] !== null) {
-                ChessSounds.CAPTURE.play();
-            } else {
-                ChessSounds.MOVE.play();
+        } else if (fromSquare) {
+            const move = possibleMoves.find(m => {
+                const moveIndices = convertSquareToIndex(m.to);
+                return moveIndices.rowIndex === rowIndex && moveIndices.colIndex === colIndex;
+            });
+
+            if (move) {
+                // Update game state
+                chessRef.current.move({ from: fromSquare, to: move.to });
+                setLastMove(move);
+                setBoard(chessRef.current.board());
             }
-
-            // Update game state
-            chessRef.current.move({ from: fromSquare, to: toSquare });
-            setBoard(chessRef.current.board());
         } 
 
         // Reset selection
@@ -83,7 +98,11 @@ export const Chessboard = ({
                                 className={
                                     `board-square 
                                     ${(rowIndex + colIndex) % 2 === 0 ? 'light-square' : 'dark-square'}
-                                    ${possibleMoves.some(move => move.rowIndex === rowIndex && move.colIndex === colIndex) && 'possible-move'}
+                                    ${possibleMoves.some(move => {
+                                        const moveIndices = convertSquareToIndex(move.to);
+                                        return moveIndices.rowIndex === rowIndex 
+                                        && moveIndices.colIndex === colIndex;
+                                    }) && 'possible-move'}
                                     ${fromSquare === convertIndexToSquare(rowIndex, colIndex) && 'selected-square'}`
                                 }
                                 onClick={() => handlePieceSelect(rowIndex, colIndex)}
