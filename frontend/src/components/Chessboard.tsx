@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChessSounds } from "../sounds/ChessSounds";
 import {Chess, type PieceSymbol, type Square, type Color, type Move } from "chess.js";
+import { PromotionChoice } from "./PromotionChoice";
 
 export const Chessboard = ({
   board,
@@ -14,6 +15,7 @@ export const Chessboard = ({
     const [fromSquare, setFromSquare] = useState<Square | null>(null);
     const [possibleMoves, setPossibleMoves] = useState<Move[]>([]);
     const [lastMove, setLastMove] = useState<Move | null>(null);
+    const [promotionMove, setPromotionMove] = useState<{rowIndex: number; colIndex: number} | null>(null);
 
     // Helpers to convert between board indices and chess squares
     const convertIndexToSquare = (rowIndex: number, colIndex: number): Square => {
@@ -22,7 +24,7 @@ export const Chessboard = ({
         return (file + rank) as Square;
     };
 
-    const convertSquareToIndex = (move: String): { rowIndex: number; colIndex: number } => {
+    const convertSquareToIndex = (move: string): { rowIndex: number; colIndex: number } => {
         const file = move.charAt(0);
         const rank = move.charAt(1);
 
@@ -31,6 +33,10 @@ export const Chessboard = ({
 
         return { rowIndex, colIndex };
     }
+
+    useEffect(() => {
+        console.log(possibleMoves);
+    }, [possibleMoves]);
 
     // useEffect to play sounds on lastMove change
     useEffect(() => {
@@ -52,7 +58,12 @@ export const Chessboard = ({
     }, [lastMove]);
 
     // Handle piece selection and movement
-    const handlePieceSelect = (rowIndex: number, colIndex: number) => {
+    const handlePieceSelect = (rowIndex: number, colIndex: number, promotion: string | undefined = undefined) => {
+        console.log("Selected square:", rowIndex, colIndex, "with promotion:", promotion);
+        if(promotionMove && !promotion) {
+            return; // Wait for promotion choice
+        }
+
         const square = convertIndexToSquare(rowIndex, colIndex);
 
         if (board[rowIndex][colIndex]?.color === chessRef.current.turn()) {
@@ -75,10 +86,17 @@ export const Chessboard = ({
             });
 
             if (move) {
-                // Update game state
-                chessRef.current.move({ from: fromSquare, to: move.to });
-                setLastMove(move);
-                setBoard(chessRef.current.board());
+                if(!promotion && move.isPromotion()) {
+                    // Handle promotion
+                    setPromotionMove({rowIndex, colIndex})
+                    return;
+                } else {
+                    // Update game state
+                    chessRef.current.move({ from: fromSquare, to: move.to, promotion: promotion });
+                    setLastMove(move);
+                    setBoard(chessRef.current.board());
+                    setPromotionMove(null);
+                }
             }
         } 
 
@@ -114,7 +132,10 @@ export const Chessboard = ({
                                         alt={`${piece.color} ${piece.type}`}
                                         draggable={false}
                                     />
-                                )}   
+                                )}
+                                {promotionMove && promotionMove.rowIndex === rowIndex && promotionMove.colIndex === colIndex && (
+                                    <PromotionChoice onSelect={(promotion) => handlePieceSelect(rowIndex, colIndex, promotion)} />
+                                )}
                             </div>
                         ))}
                     </div>
