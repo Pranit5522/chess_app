@@ -179,6 +179,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .board-square.light-square {
@@ -275,4 +276,28 @@ body {
   border-radius: 10px;
   transform: translate(-50%, -50%);
   pointer-events: none;
+}
+
+.promotion-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  background: rgba(255,255,255,0.95);
+  padding: 6px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  z-index: 50;
+}
+
+.promotion-piece {
+  width: 42px;
+  cursor: pointer;
+  transition: transform .12s ease;
+}
+
+.promotion-piece:hover {
+  transform: scale(1.1);
 }
