@@ -45,7 +45,7 @@ export class GameManager {
             if(message.type === MOVE) {
                 const game = this.games.find(game => game.player1 === user || game.player2 === user);
                 if(game){
-                    const isGameOver = game.makeMove(user, message.move);
+                    game.makeMove(user, message.move);
                 }
             }
         })
