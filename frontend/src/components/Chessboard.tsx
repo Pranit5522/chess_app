@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChessSounds } from "../sounds/ChessSounds";
+import { MessageType } from "../types/messageTypes";
 import {Chess, type PieceSymbol, type Square, type Color, type Move } from "chess.js";
 import { PromotionChoice } from "./PromotionChoice";
 
@@ -7,10 +8,14 @@ export const Chessboard = ({
   board,
   chessRef,
   setBoard,
+  color,
+  ws,
 }: {
   board: ({ square: Square; type: PieceSymbol; color: Color; } | null)[][],
   chessRef: React.RefObject<Chess>,
   setBoard: React.Dispatch<React.SetStateAction<({ square: Square; type: PieceSymbol; color: Color; } | null)[][]>>,
+  color: Color | null,
+  ws: WebSocket | null,
 }) => {
     const [fromSquare, setFromSquare] = useState<Square | null>(null);
     const [possibleMoves, setPossibleMoves] = useState<Move[]>([]);
@@ -59,17 +64,16 @@ export const Chessboard = ({
 
     // Handle piece selection and movement
     const handlePieceSelect = (rowIndex: number, colIndex: number, promotion: string | undefined = undefined) => {
-        console.log("Selected square:", rowIndex, colIndex, "with promotion:", promotion);
         if(promotionMove && !promotion) {
             return; // Wait for promotion choice
         }
 
         const square = convertIndexToSquare(rowIndex, colIndex);
 
-        if (board[rowIndex][colIndex]?.color === chessRef.current.turn()) {
-            if (board[rowIndex][colIndex] === null) {
-                return;
-            }
+        if (
+            board[rowIndex][colIndex]?.color === color
+            && chessRef.current.turn() === color
+        ) {
             const moves = chessRef.current.moves({ square, verbose: true });
             
             // Highlight possible moves
@@ -96,6 +100,16 @@ export const Chessboard = ({
                     setLastMove(move);
                     setBoard(chessRef.current.board());
                     setPromotionMove(null);
+
+                    // Send move to server
+                    ws?.send(JSON.stringify({
+                        type: MessageType.MOVE,
+                        move: {
+                            from: fromSquare,
+                            to: move.to,
+                            promotion: promotion,
+                        }
+                    }));
                 }
             }
         } 
@@ -107,7 +121,7 @@ export const Chessboard = ({
 
     return (
         <div className="game-board">
-            <div className="board">
+            <div className={`board ${color}`}>
                 {board.map((row, rowIndex) => (
                     <div key={rowIndex} className="board-row">
                         {row.map((piece, colIndex) => ( 
@@ -123,11 +137,11 @@ export const Chessboard = ({
                                     }) && 'possible-move'}
                                     ${fromSquare === convertIndexToSquare(rowIndex, colIndex) && 'selected-square'}`
                                 }
-                                onClick={() => handlePieceSelect(rowIndex, colIndex)}
+                                onClick={color && ws ? () => handlePieceSelect(rowIndex, colIndex) : undefined}
                             >
                                 {piece && (
                                     <img 
-                                        className="piece-image" 
+                                        className={`piece-image ${color}`} 
                                         src={`/pieces/${piece.color}${piece.type}.svg`} 
                                         alt={`${piece.color} ${piece.type}`}
                                         draggable={false}

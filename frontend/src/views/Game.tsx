@@ -4,11 +4,12 @@ import { JoinGame } from "../components/JoinGame";
 import { Chessboard } from "../components/Chessboard";
 import { useSocket } from "../hooks/useSocket";
 import { MessageType } from "../types/messageTypes";
+import { ChessSounds } from "../sounds/ChessSounds";
 import { Chess, type PieceSymbol, type Square, type Color } from "chess.js";
 
 export const Game = () => {
     const ws: null | WebSocket = useSocket();
-    const [playing, setPlaying] = useState(false);
+    const [color, setColor] = useState<Color | null>(null);
     const chessRef = useRef<Chess>(new Chess());
     const [board, setBoard] = useState<({ square: Square; type: PieceSymbol; color: Color; } | null)[][]>(chessRef.current.board());
     
@@ -22,10 +23,12 @@ export const Game = () => {
             
             switch (message.type) {
                 case MessageType.INIT_GAME:
+                    if(color !== null) return;
+
                     chessRef.current = new Chess();
                     setBoard(chessRef.current.board());
-                    setPlaying(true);
-
+                    setColor(message.payload.color);
+                    ChessSounds.GAME_START.play();
                     break;
 
                 case MessageType.MOVE:
@@ -52,9 +55,14 @@ export const Game = () => {
     return (
         <>
             <Navbar />
-            {(!playing && ws !== null) && <div style={{ backgroundColor: "orange" }}>Connecting to server...</div>}
             <div className="game">
-                <Chessboard board={board} setBoard={setBoard} chessRef={chessRef} />
+                <Chessboard 
+                    board={board} 
+                    setBoard={setBoard} 
+                    chessRef={chessRef} 
+                    color={color}
+                    ws={ws} 
+                />
                 <JoinGame ws={ws} />
             </div>
         </>

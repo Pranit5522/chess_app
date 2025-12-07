@@ -10,8 +10,8 @@ class Game {
         this.board = new chess_js_1.Chess();
         this.moves = [];
         this.startTime = new Date();
-        this.initialise_player(player1, "white");
-        this.initialise_player(player2, "black");
+        this.initialise_player(player1, "w");
+        this.initialise_player(player2, "b");
     }
     initialise_player(player, color) {
         player.send({
@@ -34,6 +34,18 @@ class Game {
         catch (e) {
             console.log(e);
             return;
+        }
+        if (this.board.turn() === "w") {
+            this.player1.send({
+                type: messages_1.MOVE,
+                payload: move
+            });
+        }
+        else {
+            this.player2.send({
+                type: messages_1.MOVE,
+                payload: move
+            });
         }
         if (this.board.isGameOver()) {
             let result;
@@ -58,18 +70,6 @@ class Game {
                 }
             });
             return;
-        }
-        if (this.board.turn() === "w") {
-            this.player1.send({
-                type: messages_1.MOVE,
-                payload: move
-            });
-        }
-        else {
-            this.player2.send({
-                type: messages_1.MOVE,
-                payload: move
-            });
         }
     }
 }

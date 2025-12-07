@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { GAME_OVER, INIT_GAME, MOVE } from "./messages";
-import { Chess } from "chess.js";
+import { Chess, Color } from "chess.js";
 import { User } from "./User";
 
 export class Game {
@@ -16,8 +16,8 @@ export class Game {
         this.board = new Chess();
         this.moves = [];
         this.startTime = new Date();
-        this.initialise_player(player1, "white");
-        this.initialise_player(player2, "black");
+        this.initialise_player(player1, "w");
+        this.initialise_player(player2, "b");
     }
 
     initialise_player(player: User, color: string) {
@@ -29,7 +29,7 @@ export class Game {
         });
     }
 
-    makeMove(user: User, move: {from: string, to: string}){
+    makeMove(user: User, move: {from: string, to: string, promotion?: string | undefined}) {
         if (this.board.turn() === "w" && this.player1 !== user){
             return;
         }
@@ -45,6 +45,18 @@ export class Game {
             return;
         }
 
+        if(this.board.turn() === "w"){
+            this.player1.send({
+                type: MOVE,
+                payload: move
+            })
+        } else {
+            this.player2.send({
+                type: MOVE,
+                payload: move
+            })
+        }
+        
         if(this.board.isGameOver()){
             let result: string;
             if(this.board.isDraw()) {
@@ -67,18 +79,6 @@ export class Game {
                 }
             });
             return;
-        }
-
-        if(this.board.turn() === "w"){
-            this.player1.send({
-                type: MOVE,
-                payload: move
-            })
-        } else {
-            this.player2.send({
-                type: MOVE,
-                payload: move
-            })
         }
     }
 }
