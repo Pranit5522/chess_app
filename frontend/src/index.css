@@ -224,6 +224,77 @@ body {
   color: #a2a2a2;
 }
 
+.move-history {
+  width: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.move-history > h2 {
+  color: #f5f5f5;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.move-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.move-history-row {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  color: #f5f5f5;
+  font-size: 1rem;
+}
+
+.move-number {
+  color: #a2a2a2;
+  min-width: 24px;
+}
+
+.move-white,
+.move-black {
+  min-width: 70px;
+}
+
+.game-over-panel {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top: 1px solid #2b2b2b;
+}
+
+.game-over-panel > h2 {
+  color: #f5f5f5;
+  font-size: 1.3rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.game-over-panel > p {
+  color: #a2a2a2;
+}
+
+.game-over-panel > button {
+  width: 80%;
+  margin-top: 10px;
+  height: 50px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.game-over-panel > button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .piece-image {
   width: 100%;
   height: 100%;

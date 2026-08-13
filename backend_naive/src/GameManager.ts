@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { INIT_GAME, MOVE } from "./messages";
+import { INIT_GAME, MOVE, REMATCH, OPPONENT_LEFT } from "./messages";
 import { Game } from "./Game";
 import { User } from "./User";
 
@@ -21,7 +21,21 @@ export class GameManager {
     }
 
     removeUser(ws: WebSocket) {
-        this.users = this.users.filter(user => user.getSocket() !== ws)
+        const user = this.users.find(user => user.getSocket() === ws);
+        this.users = this.users.filter(user => user.getSocket() !== ws);
+        if (!user) return;
+
+        if (this.pendingUser === user) {
+            this.pendingUser = null;
+        }
+
+        const game = this.games.find(game => game.player1 === user || game.player2 === user);
+        if (game) {
+            const opponent = game.player1 === user ? game.player2 : game.player1;
+            opponent.markPlaying(false);
+            opponent.send({ type: OPPONENT_LEFT, payload: {} });
+            this.games = this.games.filter(g => g !== game);
+        }
     }
 
     private addHandler(user: User) {
@@ -46,6 +60,13 @@ export class GameManager {
                 const game = this.games.find(game => game.player1 === user || game.player2 === user);
                 if(game){
                     game.makeMove(user, message.move);
+                }
+            }
+
+            if(message.type === REMATCH) {
+                const game = this.games.find(game => game.player1 === user || game.player2 === user);
+                if(game){
+                    game.requestRematch(user);
                 }
             }
         })

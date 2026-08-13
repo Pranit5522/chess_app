@@ -8,12 +8,14 @@ export const Chessboard = ({
   board,
   chessRef,
   setBoard,
+  setMoveHistory,
   color,
   ws,
 }: {
   board: ({ square: Square; type: PieceSymbol; color: Color; } | null)[][],
   chessRef: React.RefObject<Chess>,
   setBoard: React.Dispatch<React.SetStateAction<({ square: Square; type: PieceSymbol; color: Color; } | null)[][]>>,
+  setMoveHistory: React.Dispatch<React.SetStateAction<string[]>>,
   color: Color | null,
   ws: WebSocket | null,
 }) => {
@@ -99,6 +101,7 @@ export const Chessboard = ({
                     chessRef.current.move({ from: fromSquare, to: move.to, promotion: promotion });
                     setLastMove(move);
                     setBoard(chessRef.current.board());
+                    setMoveHistory(chessRef.current.history());
                     setPromotionMove(null);
 
                     // Send move to server
