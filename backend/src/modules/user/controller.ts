@@ -64,6 +64,14 @@ export const loginUser = async (req: Request, res: Response) => {
         maxAge: 60 * 60 * 1000,
     });
 
+    res.cookie("loggedIn", "1", {
+        httpOnly: false,
+        sameSite: "lax",
+        secure: false,
+        path: "/",
+        maxAge: 60 * 60 * 1000,
+    });
+
     return res.json({
         success: true,
         message: "Login successful",
@@ -73,4 +81,10 @@ export const loginUser = async (req: Request, res: Response) => {
             username: user.username,
         }
     });
+};
+
+export const logoutUser = async (req: Request, res: Response) => {
+    res.clearCookie("token", { path: "/" });
+    res.clearCookie("loggedIn", { path: "/" });
+    return res.json({ success: true, message: "Logged out" });
 };
