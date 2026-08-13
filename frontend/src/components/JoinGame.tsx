@@ -15,7 +15,7 @@ export const JoinGame = (props: { ws: null | WebSocket }) => {
         <div className="game-menu">
             <img src={crown} alt="crown" />
             <h1>Play Online</h1>
-            <button onClick={startGame}>
+            <button className="yellow-btn" onClick={startGame}>
                 <p>Start Game</p>
                 <ArrowForwardIosIcon className="icon"/>
             </button>

@@ -16,7 +16,7 @@ export const Home = () => {
         <div className="hero-inner">
           <h1>MASTER YOUR MOVES</h1>
           <h2>Play, learn and connect with others</h2>
-          <button className="cta" onClick={handlePlay}>PLAY NOW</button>
+          <button className="cta yellow-btn" onClick={handlePlay}>PLAY NOW</button>
         </div>
       </div>
     </div>
