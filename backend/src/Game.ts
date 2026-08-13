@@ -1,21 +1,21 @@
 import WebSocket from "ws";
-import { GAME_OVER, INIT_GAME, MOVE } from "./messages";
-import { Chess, Color } from "chess.js";
+import { GAME_OVER, INIT_GAME, MOVE, REMATCH_REQUESTED } from "./messages";
+import { Chess, Color, Move } from "chess.js";
 import { User } from "./User";
 
 export class Game {
     public player1: User;
     public player2: User;
     private board: Chess;
-    private moves: string[];
     private startTime: Date;
+    private rematchReady: { player1: boolean; player2: boolean };
 
     constructor(player1: User, player2: User) {
         this.player1 = player1;
         this.player2 = player2;
         this.board = new Chess();
-        this.moves = [];
         this.startTime = new Date();
+        this.rematchReady = { player1: false, player2: false };
         this.initialise_player(player1, "w");
         this.initialise_player(player2, "b");
     }
@@ -37,8 +37,9 @@ export class Game {
             return;
         }
 
+        let played: Move;
         try {
-            this.board.move(move);
+            played = this.board.move(move);
         }
         catch(e){
             console.log(e);
@@ -56,29 +57,62 @@ export class Game {
                 payload: move
             })
         }
-        
+
         if(this.board.isGameOver()){
-            let result: string;
-            if(this.board.isDraw()) {
-                result = "draw";
+            let reason: string;
+            let winner: Color | null;
+
+            if(this.board.isCheckmate()) {
+                reason = "checkmate";
+                winner = played.color;
+            } else if(this.board.isStalemate()) {
+                reason = "stalemate";
+                winner = null;
+            } else if(this.board.isThreefoldRepetition()) {
+                reason = "threefold_repetition";
+                winner = null;
+            } else if(this.board.isInsufficientMaterial()) {
+                reason = "insufficient_material";
+                winner = null;
             } else {
-                result = this.board.turn() === "w" ? "black" : "white";
+                reason = "fifty_move_rule";
+                winner = null;
             }
+
             this.player1.markPlaying(false);
             this.player1.send({
                 type: GAME_OVER,
-                payload: {
-                    result: result
-                }
+                payload: { reason, winner }
             });
             this.player2.markPlaying(false);
             this.player2.send({
                 type: GAME_OVER,
-                payload: {
-                    result: result
-                }
+                payload: { reason, winner }
             });
             return;
         }
+    }
+
+    requestRematch(user: User) {
+        if(user === this.player1) {
+            this.rematchReady.player1 = true;
+        } else if(user === this.player2) {
+            this.rematchReady.player2 = true;
+        } else {
+            return;
+        }
+
+        if(this.rematchReady.player1 && this.rematchReady.player2) {
+            this.board = new Chess();
+            this.rematchReady = { player1: false, player2: false };
+            this.player1.markPlaying(true);
+            this.player2.markPlaying(true);
+            this.initialise_player(this.player1, "w");
+            this.initialise_player(this.player2, "b");
+            return;
+        }
+
+        const opponent = user === this.player1 ? this.player2 : this.player1;
+        opponent.send({ type: REMATCH_REQUESTED, payload: {} });
     }
 }
