@@ -1,6 +1,6 @@
 import http from 'http';
 import app from './app';
-import cookie from "cookie";
+import { parse as parseCookies } from "cookie";
 import jwt from 'jsonwebtoken';
 import { WebSocketServer } from 'ws';
 import { GameManager } from './GameManager';
@@ -11,7 +11,7 @@ const gameManager = new GameManager();
 
 wss.on('connection', function connection(ws, req) {
   try {
-    const cookies = cookie.parse(req.headers.cookie || '');
+    const cookies = parseCookies(req.headers.cookie || '');
     const token = cookies.token;
 
     if (!token) {
@@ -24,7 +24,7 @@ wss.on('connection', function connection(ws, req) {
 
     gameManager.addUser(ws);
     console.log("New user connected.");
-    
+
   } catch (err) {
     ws.close(1008, 'Unauthorized');
     return;
