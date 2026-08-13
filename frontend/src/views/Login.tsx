@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 export const Login = () => {
+    const navigate = useNavigate();
 
     async function handleLogin() {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
@@ -13,7 +16,10 @@ export const Login = () => {
 
         if (!response.ok) {
             alert("Login failed");
+            return;
         }
+
+        navigate("/game");
     }
     return (
         <div className="login-page">

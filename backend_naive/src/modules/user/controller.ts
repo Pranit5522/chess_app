@@ -60,6 +60,7 @@ export const loginUser = async (req: Request, res: Response) => {
         httpOnly: true,
         sameSite: "lax",
         secure: false,
+        path: "/",
         maxAge: 60 * 60 * 1000,
     });
 
