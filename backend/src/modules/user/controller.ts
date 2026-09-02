@@ -56,18 +56,20 @@ export const loginUser = async (req: Request, res: Response) => {
         { expiresIn: '1h' }
     );
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
         httpOnly: true,
-        sameSite: "lax",
-        secure: false,
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd,
         path: "/",
         maxAge: 60 * 60 * 1000,
     });
 
     res.cookie("loggedIn", "1", {
         httpOnly: false,
-        sameSite: "lax",
-        secure: false,
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd,
         path: "/",
         maxAge: 60 * 60 * 1000,
     });
