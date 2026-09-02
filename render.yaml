@@ -1,0 +1,39 @@
+databases:
+  - name: chess-app-db
+    plan: free
+
+services:
+  - type: web
+    name: chess-app-backend
+    runtime: node
+    rootDir: backend_naive
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chess-app-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        sync: false
+
+  - type: web
+    name: chess-app-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_WS_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
