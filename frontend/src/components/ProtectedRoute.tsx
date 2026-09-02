@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: ReactElement }) => {
   const [ok, setOk] = useState<boolean | null>(null);
 
   useEffect(() => {
