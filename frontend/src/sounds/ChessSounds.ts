@@ -1,5 +1,3 @@
-import { Castle } from "@mui/icons-material";
-
 export const ChessSounds = {
   MOVE: new Audio("/sounds/move.mp3"),
   CAPTURE: new Audio("/sounds/capture.mp3"),
