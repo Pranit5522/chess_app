@@ -6,6 +6,11 @@ const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173', credentials: true }));
 app.use(express.json());
+
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.use('/api/users', authRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
